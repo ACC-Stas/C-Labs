@@ -1,0 +1,11 @@
+## for Visual studio
+
+*.sln
+*/Debug
+*/src/Debug
+*/.vs
+*.exe
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
