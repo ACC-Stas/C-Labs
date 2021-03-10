@@ -2,13 +2,11 @@
 #include <assert.h>
 
 void testMaxFibonachi() {
-	int requiredNumber = 46;
-	assert(requiredNumber == maxFibonachi());
+	assert(46 == maxFibonachi());
 }
 
 void testMaxSumFibonachi() {
-	int requiredNumber = 1836311902;
-	assert(requiredNumber == maxSumFibonachi());
+	assert(1836311902 == maxSumFibonachi());
 }
 
 #undef main
