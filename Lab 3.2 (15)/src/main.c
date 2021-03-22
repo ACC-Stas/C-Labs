@@ -45,7 +45,7 @@ int main() {
 		printf("List %d\n", i);
 		for (j = 0; j < ySize; j++) {
 			for (g = 0; g < xSize; g++) {
-				printf("body[%d][%d][%d] = %d, ", i, j, g, body[i][j][g]);
+				printf("%d ", body[i][j][g]);
 			}
 			printf("\n");
 		}
@@ -54,21 +54,21 @@ int main() {
 	printf("xyProjection: \n");
 	for (i = 0; i < xSize; i++) {
 		for (j = 0; j < ySize; j++) {
-			printf("xyProjection[%d][%d] = %d, ", i, j, projection[0][i][j]);
+			printf("%d ", projection[0][i][j]);
 		}
 		printf("\n");
 	}
 	printf("xzProjection: \n");
 	for (i = 0; i < xSize; i++) {
 		for (g = 0; g < zSize; g++) {
-			printf("xzProjection[%d][%d] = %d, ", i, g, projection[1][i][g]);
+			printf("%d, ", projection[1][i][g]);
 		}
 		printf("\n");
 	}
 	printf("yzProjection: \n");
 	for (j = 0; j < ySize; j++) {
 		for (g = 0; g < zSize; g++) {
-			printf("yzProjection[%d][%d] = %d, ", j, g, projection[2][j][g]);
+			printf("%d, ", projection[2][j][g]);
 		}
 		printf("\n");
 	}
