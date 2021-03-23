@@ -20,27 +20,70 @@ int*** project(int*** body, size_t zSize, size_t ySize, size_t xSize) { /*return
 	}
 	projection[0] = (int**)malloc(xSize * sizeof(int*));
 	if (projection[0] == NULL) {
+		free(projection);
 		printf("\nCan't allocate memory\n");
 		return NULL;
 	}
 	int i, j, g;
-	projection[1] = (int**)malloc(xSize * sizeof(int*));;
+	projection[1] = (int**)malloc(xSize * sizeof(int*));
+	if (projection[1] == NULL) {
+		free(projection[0]);
+		free(projection);
+		printf("\nCan't allocate memory\n");
+		return NULL;
+	}
 	for (i = 0; i < xSize; i++) {
 		projection[0][i] = (int*)malloc(ySize * sizeof(int));
 		projection[1][i] = (int*)malloc(zSize * sizeof(int));
 		if (projection[0][i] == NULL || projection[1][i] == NULL) {
+			int temp = i;
+			if (projection[0][i] == NULL) {
+				temp--;
+			}
+			if (projection[1][i] == NULL) {
+				i--;
+			}
+			for (; temp >= 0; temp--) {
+				free(projection[0][temp]);
+			}
+			for(; i >= 0; i--) {
+				free(projection[1][i]);
+			}
+			free(projection);
 			printf("\nCan't allocate memory\n");
 			return NULL;
 		}
 	} 
 	projection[2] = (int**)malloc(ySize * sizeof(int*));
 	if (projection[2] == NULL) {
+		for (i = xSize - 1; i >= 0; i--) {
+			free(projection[0][i]);
+		}
+		for (j = ySize - 1; j >= 0; j--) {
+			free(projection[1][j]);
+		}
+		free(projection[0]);
+		free(projection[1]);
+		free(projection);
 		printf("\nCan't allocate memory\n");
 		return NULL;
 	}
 	for (i = 0; i < ySize; i++) {
 		projection[2][i] = (int*)malloc(zSize * sizeof(int));
 		if (projection[2][i] == NULL) {
+			for (g = xSize - 1; g >= 0; g--) {
+				free(projection[0][g]);
+			}
+			for (j = ySize - 1; j >= 0; j--) {
+				free(projection[1][j]);
+			}
+			i--;
+			for (; i >= 0; i--) {
+				free(projection[2][i]);
+			}
+			free(projection[0]);
+			free(projection[1]);
+			free(projection);
 			printf("\nCan't allocate memory\n");
 			return NULL;
 		}

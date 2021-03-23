@@ -18,6 +18,10 @@ int main() {
 	for (i = 0; i < zSize; i++) {
 		body[i] = (int**)malloc(ySize*sizeof(int*));
 		if (body[i] == NULL) {
+			for (j = i - 1; j >= 0; j--) {
+				free(body[j]);
+			}
+			free(body);
 			printf("\nCan't allocate memory\n");
 			return 1;
 		}
@@ -28,6 +32,20 @@ int main() {
 		for (j = 0; j < ySize; j++) {
 			body[i][j] = (int*)malloc(xSize*sizeof(int));
 			if (body[i][j] == NULL) {
+				j--;
+				for (; j >= 0; j--) {
+					free(body[i][j]);
+				}
+				i--;
+				for (; i >= 0; i--) {
+					for (j = ySize - 1; j >= 0; j--) {
+						free(body[i][j]);
+					}
+				}
+				for (i = zSize - 1; i >= 0; i--) {
+					free(body[i]);
+				}
+				free(body);
 				printf("\nCan't allocate memory\n");
 				return 1;
 			}
@@ -61,14 +79,14 @@ int main() {
 	printf("xzProjection: \n");
 	for (i = 0; i < xSize; i++) {
 		for (g = 0; g < zSize; g++) {
-			printf("%d, ", projection[1][i][g]);
+			printf("%d ", projection[1][i][g]);
 		}
 		printf("\n");
 	}
 	printf("yzProjection: \n");
 	for (j = 0; j < ySize; j++) {
 		for (g = 0; g < zSize; g++) {
-			printf("%d, ", projection[2][j][g]);
+			printf("%d ", projection[2][j][g]);
 		}
 		printf("\n");
 	}
