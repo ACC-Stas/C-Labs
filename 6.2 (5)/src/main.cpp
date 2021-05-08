@@ -22,14 +22,59 @@
 #define ESC 27
 #define F1 94
 
+int getResources();
+std::vector<std::string> getFullName();
 tm getTime();
 void taskMenu(Project& project, Task& task);
 void projectMenu(Project& project);
 void mainMenu(std::list<Project>& projects);
 
 int main() {
+	std::ifstream fin("data.txt");
 	std::list<Project> projects;
+	std::string line;
+	do {
+		std::getline(fin, line);
+		std::cmatch res;
+		std::regex rxProject("^#Project\\s+([\\d\\w]+)");
+		if (std::regex_search(line.c_str(), res, rxProject)) {
+			std::string name;
+		}
+
+
+	} while (line != "#ENDOFLIST#");
+	fin.close();
+
 	mainMenu(projects);
+
+	std::ofstream fout("data.txt");
+	for (auto project : projects) {
+		fout << "#Project\n";
+		fout << "#Name " << project.name << '\n';
+		for (auto task : project.getTasks()) {
+			fout << "#Task\n";
+			fout << "#Name " << task.name << '\n';
+			fout << "#Begining " << task.begining.tm_mday << '.' << task.begining.tm_mon << '.' << task.begining.tm_year << '\n';
+			fout << "#End " << task.end.tm_mday << '.' << task.end.tm_mon << '.' << task.end.tm_year << '\n';
+			fout << "#Resources " << task.resources << '\n';
+			for (auto employee : task.workers) {
+				fout << "#Employee\n";
+				fout << "#Name " << employee.name << " " << employee.surName << " " << employee.patronymic << '\n';
+				fout << "#Resources " << employee.Payment << '\n';
+				fout << "Employee#\n";
+			}
+			fout << "Task#\n";
+		}
+		for (auto employee : project.getEmployees()) {
+			fout << "#Employee\n";
+			fout << "#Name " << employee.name << " " << employee.surName << " " << employee.patronymic << '\n';
+			fout << "#Resources " << employee.Payment << '\n';
+			fout << "Employee#\n";
+		}
+		fout << "Project#\n";
+	}
+	fout << "#ENDOFLIST#\n";
+	fout.close();
 	return 0;
 }
 
@@ -95,7 +140,7 @@ void mainMenu(std::list<Project>& projects) {
 			}
 			if (found) {
 				std::cout << "Project name: " + name << '\n';
-				std::vector<Task*> vec = (*projectIt).getTasks();
+				std::vector<Task> vec = (*projectIt).getTasks();
 				if (vec.size() < 1) {
 					std::cout << "There is no tasks\n";
 				}
@@ -107,8 +152,8 @@ void mainMenu(std::list<Project>& projects) {
 					std::cout << "Estimated cost of project is: " << (*projectIt).getResources() << '\n';
 					int time;
 					for (auto it : vec) {
-						std::cout << "Task " << it->name << "has ";
-						time = (*projectIt).getFreeTaskTime(*it) / (60 * 60 * 24);
+						std::cout << "Task " << it.name << " has ";
+						time = (*projectIt).getFreeTaskTime(it) / (60 * 60 * 24);
 						if (time == 0) {
 							std::cout << "no free time\n";
 							std::cout << "Critical task\n";
@@ -119,9 +164,9 @@ void mainMenu(std::list<Project>& projects) {
 						}
 					}
 				}
-				std::cout << "Employees\n";
+				std::cout << "Employees:\n";
 				for (auto it : (*projectIt).getEmployees()) {
-					std::cout << it->name << '\n';
+					std::cout << it.name << " " << it.surName << " " << it.patronymic << '\n';
 				}
 			}
 			else {
@@ -161,8 +206,6 @@ void mainMenu(std::list<Project>& projects) {
 				"3 - show information about project\n" <<
 				"4 - show list of projects\n" <<
 				"5 - change project\n" <<
-				"6 - copy data to some file\n" <<
-				"7 - load data from file\n" <<
 				"F1 - help\n" <<
 				"ESC - close program\n";
 			break;
@@ -184,6 +227,7 @@ void mainMenu(std::list<Project>& projects) {
 		std::cout << '\n';
 	} while (true);
 }
+
 void projectMenu(Project& project) {
 	char input;
 	do {
@@ -225,10 +269,72 @@ void projectMenu(Project& project) {
 			}
 			break;
 		}
+		case THREE_BUTTON: {
+			std::cout << "Enter name of task you want to alter: ";
+			std::string name;
+			std::cin >> name;
+			if (!project.haveTaskName(name)) {
+				std::cout << "There is no task with such name";
+				break;
+			}
+			taskMenu(project, project.getTask(name));
+			break;
+		}
+		case FOUR_BUTTON: {
+			std::cout << "Adding employee\n";
+			std::vector<std::string> fullName(getFullName());
+			Employee employee(fullName[0], fullName[1], fullName[2]);
+			if (project.haveEmployee(employee)) {
+				std::cout << "Employee with such full name is already in the project";
+				break;
+			}
+			project.addEmployee(employee);
+			break;
+		}
+		case FIVE_BUTTON: {
+			std::cout << "Removing employee\n";
+			std::vector<std::string> fullName(getFullName());
+			Employee employee(fullName[0], fullName[1], fullName[2]);
+			if (!project.haveEmployee(employee)) {
+				std::cout << "There is no employee with such full name";
+				break;
+			}
+			project.removeEmployee(employee);
+			break;
+		}
+		case SIX_BUTTON: {
+			std::cout << "Changing price for employee\n";
+			std::vector<std::string> fullName(getFullName());
+			Employee employee(fullName[0], fullName[1], fullName[2]);
+			if (!project.haveEmployee(employee)) {
+				std::cout << "There is no employee with such full name";
+				break;
+			}
+			int resoureces = getResources();
+			project.getEmployee(fullName).Payment = resoureces;
+			break;
+		}
+		case SEVEN_BUTTON: {
+			std::cout << "Enter name of task, that need to be removed: ";
+			std::string name;
+			std::cin >> name;
+			if (!project.haveTaskName(name)) {
+				std::cout << "There is no task with such name";
+				break;
+			}
+			Task task(name, tm(), tm());
+			project.removeTask(task);
+			break;
+		}
 		case F1: {
 			std::cout << "It is project menu\n" <<
 				"1 - rename project\n" <<
 				"2 - add task\n" <<
+				"3 - change task\n" <<
+				"4 - add employee\n" <<
+				"5 - remove employee\n" <<
+				"6 - change payment for employee\n" <<
+				"7 - remove task\n" << 
 				"F1 - help\n" <<
 				"ESC - return to main menu\n";
 			break;
@@ -252,7 +358,78 @@ void projectMenu(Project& project) {
 }
 
 void taskMenu(Project& project, Task& task) {
-
+	char input;
+	do {
+		std::cout << "Your command?";
+		input = _getch();
+		if (input == 0 || input == -32) {
+			input = _getch();
+		}
+		std::cout << '\n';
+		switch (input) {
+		case ONE_BUTTON: {
+			std::cout << "Enter new name of task: ";
+			std::string name;
+			std::cin >> name;
+			if (project.haveTaskName(name)) {
+				std::cout << "This name is already used by another task";
+				break;
+			}
+			task.name = name;
+			break;
+		}
+		case TWO_BUTTON: {
+			std::cout << "Changing resources\n";
+			int resources = getResources();
+			task.resources = resources;
+			break;
+		}
+		case THREE_BUTTON: {
+			std::cout << "Adding employee to task. Employee shoud already be part of the project\n";
+			std::vector<std::string> fullName(getFullName());
+			Employee employee(fullName[0], fullName[1], fullName[2]);
+			if (!project.haveEmployee(employee)) {
+				std::cout << "There is no employee at project with such full name";
+				break;
+			}
+			try {
+				task.addEmployee(employee);
+			}
+			catch (std::invalid_argument& ex) {
+				std::cout << "This employee is already part of the task";
+			}
+			break;
+		}
+		case FOUR_BUTTON: {
+			std::cout << "This task use " << task.resources << " of resources";
+			break;
+		}
+		case F1: {
+			std::cout << "It is task menu\n" <<
+				"1 - change name\n" << 
+				"2 - change resources\n" <<
+				"3 - add employee to task\n" <<
+				"4 - show resources\n" << 
+				"F1 - help\n" <<
+				"ESC - return to main menu\n";
+			break;
+		}
+		case ESC: {
+			std::cout << "Press escape one more time: ";
+			if (_getch() == ESC) {
+				return;
+			}
+			else {
+				std::cout << '\n';
+			}
+			break;
+		}
+		default: {
+			break;
+		}
+		}
+		std::cout << '\n';
+	} while (true);
 }
 
 tm getTime() {
@@ -265,10 +442,6 @@ tm getTime() {
 		std::cout << "Enter date, for example: 14.04.2020: ";
 		incorrectInput = false;
 		getline(std::cin, input);
-		if (input == "") {
-			incorrectInput = true;
-			continue;
-		}
 		if (std::regex_search(input.c_str(), res, rx)) {
 			int day = std::stoi(res[1]);
 			int month = std::stoi(res[2]);
@@ -302,4 +475,62 @@ tm getTime() {
 		std::cout << '\n';
 	} while (incorrectInput);
 	return time;
+}
+
+std::vector<std::string> getFullName() {
+	bool incorrectInput;
+	std::regex rx("(\\w+)[\\s+](\\w+)[\\s+](\\w+)");
+	std::cmatch res;
+	std::string input;
+	std::vector<std::string> fullName;
+	do {
+		std::cout << "Enter full name, for example: Victor Victorovich Victorious: ";
+		incorrectInput = false;
+		getline(std::cin, input);
+		if (input == "") {
+			incorrectInput = true;
+			continue;
+		}
+		if (std::regex_search(input.c_str(), res, rx)) {
+			fullName.push_back(res[1]);
+			fullName.push_back(res[2]);
+			fullName.push_back(res[3]);
+		}
+		else {
+			incorrectInput = true;
+			std::cout << "It is not a full name";
+		}
+		std::cout << '\n';
+	} while (incorrectInput);
+	return fullName;
+}
+
+int getResources() {
+	bool incorrectInput;
+	std::regex rx("^(-?[0-9]+)");
+	std::cmatch res;
+	std::string input;
+	int resources;
+	do {
+		std::cout << "Enter positive number, that represents resources: ";
+		incorrectInput = false;
+		getline(std::cin, input);
+		if (input == "") {
+			incorrectInput = true;
+			continue;
+		}
+		if (std::regex_search(input.c_str(), res, rx)) {
+			resources = std::stoi(res[1]);
+			if (resources < 0) {
+				incorrectInput = true;
+				std::cout << "Number needs to be positive";
+			}
+		}
+		else {
+			incorrectInput = true;
+			std::cout << "It is not a number";
+		}
+		std::cout << '\n';
+	} while (incorrectInput);
+	return resources;
 }

@@ -1,10 +1,11 @@
 #pragma once
 #include "Employee.h"
 #include <string>
+#include <iostream>
 #include <vector>
 
 struct Task {
-	std::vector<Employee*> workers;
+	std::vector<Employee> workers;
 	std::string name;
 	tm begining, end;
 	int resources;

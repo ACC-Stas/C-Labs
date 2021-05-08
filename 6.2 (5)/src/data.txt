@@ -1,0 +1,18 @@
+#Project
+#Name Montana
+#Task
+#Name firstTask
+#Begining 14.4.120
+#End 15.6.121
+#Resources 100500
+#Employee
+#Name Victor Vrot Reanaldovich
+#Resources 0
+Employee#
+Task#
+#Employee
+#Name Victor Vrot Reanaldovich
+#Resources 35
+Employee#
+Project#
+#ENDOFLIST#
