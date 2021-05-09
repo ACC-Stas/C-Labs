@@ -80,9 +80,7 @@ std::vector<Task>& Project::getTasks() {
 		if (difftime(mktime(&right.begining), mktime(&left.begining)) > 0) {
 			return true;
 		}
-		else {
-			return false;
-		}
+		return false;
 		});
 	return tasks;
 }

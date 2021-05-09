@@ -28,53 +28,16 @@ tm getTime();
 void taskMenu(Project& project, Task& task);
 void projectMenu(Project& project);
 void mainMenu(std::list<Project>& projects);
+void loadData(std::list<Project>& projects, std::string nameOfFile);
+void saveData(std::list<Project>& projects, std::string nameOfFile);
 
 int main() {
-	std::ifstream fin("data.txt");
 	std::list<Project> projects;
-	std::string line;
-	do {
-		std::getline(fin, line);
-		std::cmatch res;
-		std::regex rxProject("^#Project\\s+([\\d\\w]+)");
-		if (std::regex_search(line.c_str(), res, rxProject)) {
-			std::string name;
-		}
-
-
-	} while (line != "#ENDOFLIST#");
-	fin.close();
+	loadData(projects, "data.txt");
 
 	mainMenu(projects);
 
-	std::ofstream fout("data.txt");
-	for (auto project : projects) {
-		fout << "#Project\n";
-		fout << "#Name " << project.name << '\n';
-		for (auto task : project.getTasks()) {
-			fout << "#Task\n";
-			fout << "#Name " << task.name << '\n';
-			fout << "#Begining " << task.begining.tm_mday << '.' << task.begining.tm_mon << '.' << task.begining.tm_year << '\n';
-			fout << "#End " << task.end.tm_mday << '.' << task.end.tm_mon << '.' << task.end.tm_year << '\n';
-			fout << "#Resources " << task.resources << '\n';
-			for (auto employee : task.workers) {
-				fout << "#Employee\n";
-				fout << "#Name " << employee.name << " " << employee.surName << " " << employee.patronymic << '\n';
-				fout << "#Resources " << employee.Payment << '\n';
-				fout << "Employee#\n";
-			}
-			fout << "Task#\n";
-		}
-		for (auto employee : project.getEmployees()) {
-			fout << "#Employee\n";
-			fout << "#Name " << employee.name << " " << employee.surName << " " << employee.patronymic << '\n';
-			fout << "#Resources " << employee.Payment << '\n';
-			fout << "Employee#\n";
-		}
-		fout << "Project#\n";
-	}
-	fout << "#ENDOFLIST#\n";
-	fout.close();
+	saveData(projects, "data.txt");
 	return 0;
 }
 
@@ -435,7 +398,7 @@ void taskMenu(Project& project, Task& task) {
 tm getTime() {
 	tm time;
 	bool incorrectInput;
-	std::regex rx("(\\d{1,2})[\.:\\s](\\d{1,2})[\.:\\s](\\d{4})");
+	std::regex rx("(\\d{1,2})[.:\\s](\\d{1,2})[.:\\s](\\d{4})");
 	std::cmatch res;
 	std::string input;
 	do {
@@ -534,3 +497,120 @@ int getResources() {
 	} while (incorrectInput);
 	return resources;
 }
+
+void loadData(std::list<Project>& projects, std::string nameOfFile) {
+	std::ifstream fin(nameOfFile);
+	std::string line;
+	std::cmatch res;
+	std::regex rxName("^#Name\\s+([\\d\\w]+)");
+	std::regex rxFullName("^#FullName\\s+([\\d\\w]+)\\s+([\\d\\w]+)\\s+([\\d\\w]+)");
+	std::regex rxBegining("^#Begining\\s+(\\d{1,2})[.:\\s](\\d{1,2})[.:\\s](\\d{3,4})");
+	std::regex rxEnd("^#End\\s+(\\d{1,2})[.:\\s](\\d{1,2})[.:\\s](\\d{3,4})");
+	std::regex rxResources("^#Resources\\s+(\\d+)");
+	do {
+		std::getline(fin, line);
+		if (line == "#Project") {
+			Project project("Name");
+			do {
+				std::getline(fin, line);
+				if (std::regex_search(line.c_str(), res, rxName)) {
+					project.name = res[1];
+				}
+
+				if (line == "#Task") {
+					Task task("Name", tm(), tm());
+					do {
+						std::getline(fin, line);
+						if (std::regex_search(line.c_str(), res, rxName)) {
+							task.name = res[1];
+						}
+						if (std::regex_search(line.c_str(), res, rxBegining)) {
+							tm beginging = { 0,0,0,0,0,0 };
+							tm end = { 0,0,0,0,0,0 };
+							beginging.tm_mday = std::stoi(res[1]);
+							beginging.tm_mon = std::stoi(res[2]);
+							beginging.tm_year = std::stoi(res[3]);
+							std::getline(fin, line);  //next line must be with end date
+							std::regex_search(line.c_str(), res, rxEnd);
+							end.tm_mday = std::stoi(res[1]);
+							end.tm_mon = std::stoi(res[2]);
+							end.tm_year = std::stoi(res[3]);
+							task.begining = beginging;
+							task.end = end;
+						}
+						if (std::regex_search(line.c_str(), res, rxResources)) {
+							task.resources = std::stoi(res[1]);
+						}
+						if (line == "#Employee") {
+							Employee employee("Name", "SurName", "patronimic");
+							do {
+								std::getline(fin, line);
+								if (std::regex_search(line.c_str(), res, rxFullName)) {
+									employee.name = res[1];
+									employee.surName = res[2];
+									employee.patronymic = res[3];
+								}
+								if (std::regex_search(line.c_str(), res, rxResources)) {
+									employee.Payment = std::stoi(res[1]);
+								}
+							} while (line != "Employee#");
+							task.addEmployee(employee);
+						}
+					} while (line != "Task#");
+					project.addTask(task);
+				}
+
+				if (line == "#Employee") {
+					Employee employee("Name", "SurName", "patronimic");
+					do {
+						std::getline(fin, line);
+						if (std::regex_search(line.c_str(), res, rxFullName)) {
+							employee.name = res[1];
+							employee.surName = res[2];
+							employee.patronymic = res[3];
+						}
+						if (std::regex_search(line.c_str(), res, rxResources)) {
+							employee.Payment = std::stoi(res[1]);
+						}
+					} while (line != "Employee#");
+					project.addEmployee(employee);
+				}
+
+			} while (line != "Project#");
+			projects.push_back(project);
+		}
+	} while (line != "#ENDOFLIST#");
+	fin.close();
+}
+
+void saveData(std::list<Project>& projects, std::string nameOfFile) {
+	std::ofstream fout(nameOfFile);
+	for (auto project : projects) {
+		fout << "#Project\n";
+		fout << "#Name " << project.name << '\n';
+		for (auto task : project.getTasks()) {
+			fout << "#Task\n";
+			fout << "#Name " << task.name << '\n';
+			fout << "#Begining " << task.begining.tm_mday << '.' << task.begining.tm_mon << '.' << task.begining.tm_year << '\n';
+			fout << "#End " << task.end.tm_mday << '.' << task.end.tm_mon << '.' << task.end.tm_year << '\n';
+			fout << "#Resources " << task.resources << '\n';
+			for (auto employee : task.workers) {
+				fout << "#Employee\n";
+				fout << "#FullName " << employee.name << " " << employee.surName << " " << employee.patronymic << '\n';
+				fout << "#Resources " << employee.Payment << '\n';
+				fout << "Employee#\n";
+			}
+			fout << "Task#\n";
+		}
+		for (auto employee : project.getEmployees()) {
+			fout << "#Employee\n";
+			fout << "#FullName " << employee.name << " " << employee.surName << " " << employee.patronymic << '\n';
+			fout << "#Resources " << employee.Payment << '\n';
+			fout << "Employee#\n";
+		}
+		fout << "Project#\n";
+	}
+	fout << "#ENDOFLIST#\n";
+	fout.close();
+}
+

@@ -6,13 +6,26 @@
 #End 15.6.121
 #Resources 100500
 #Employee
-#Name Victor Vrot Reanaldovich
-#Resources 0
+#FullName Vi Va Vu
+#Resources 35
 Employee#
 Task#
 #Employee
-#Name Victor Vrot Reanaldovich
+#FullName Vi Va Vu
 #Resources 35
 Employee#
+#Employee
+#FullName Victor Vrot Reanaldovich
+#Resources 0
+Employee#
+Project#
+#Project
+#Name Arisona
+#Task
+#Name DOSTUFFFF
+#Begining 14.8.119
+#End 20.1.123
+#Resources 0
+Task#
 Project#
 #ENDOFLIST#
