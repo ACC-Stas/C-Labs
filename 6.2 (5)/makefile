@@ -1,9 +1,7 @@
 all: buildMain buildTest runTest
 
 buildMain:
-	cd src
-	g++ -o main Employee.cpp Project.cpp Task.cpp main.cpp
-	cd ..
+	g++ -o src/main src/Employee.cpp src/Project.cpp src/Task.cpp src/main.cpp
 
 buildTest:
 	
