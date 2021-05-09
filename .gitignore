@@ -8,4 +8,7 @@
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user
+*.gcno
+*.gcda
+*.gcov
 
