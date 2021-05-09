@@ -4,7 +4,6 @@
 #include <vector>
 #include <fstream>
 #include <list>
-#include <conio.h>
 #include "Employee.h"
 #include "Task.h"
 #include "Project.h"
@@ -19,8 +18,6 @@
 #define SEVEN_BUTTON 55
 #define EIGHT_BUTTON 56
 #define NINE_BUTTON 57
-#define ESC 27
-#define F1 94
 
 int getResources();
 std::vector<std::string> getFullName();
@@ -45,10 +42,7 @@ void mainMenu(std::list<Project>& projects) {
 	char input;
 	do {
 		std::cout << "Your command?";
-		input = _getch();
-		if (input == 0 || input == -32) {
-			input = _getch();
-		}
+		std::cin >> input;
 		std::cout << '\n';
 		switch (input) {
 		case ONE_BUTTON: {
@@ -162,26 +156,19 @@ void mainMenu(std::list<Project>& projects) {
 			}
 			break;
 		}
-		case F1: {
+		case EIGHT_BUTTON: {
 			std::cout << "It is main menu\n" <<
 				"1 - add project\n" <<
 				"2 - delete project\n" <<
 				"3 - show information about project\n" <<
 				"4 - show list of projects\n" <<
 				"5 - change project\n" <<
-				"F1 - help\n" <<
-				"ESC - close program\n";
+				"8 - help\n" <<
+				"9 - close program\n";
 			break;
 		}
-		case ESC: {
-			std::cout << "Press escape one more time: ";
-			if (_getch() == ESC) {
-				return;
-			}
-			else {
-				std::cout << '\n';
-			}
-			break;
+		case NINE_BUTTON: {
+			return;
 		}
 		default: {
 			break;
@@ -195,10 +182,7 @@ void projectMenu(Project& project) {
 	char input;
 	do {
 		std::cout << "Your command?";
-		input = _getch();
-		if (input == 0 || input == -32) {
-			input = _getch();
-		}
+		std::cin >> input;
 		std::cout << '\n';
 		switch (input) {
 		case ONE_BUTTON: {
@@ -289,7 +273,7 @@ void projectMenu(Project& project) {
 			project.removeTask(task);
 			break;
 		}
-		case F1: {
+		case EIGHT_BUTTON: {
 			std::cout << "It is project menu\n" <<
 				"1 - rename project\n" <<
 				"2 - add task\n" <<
@@ -298,19 +282,12 @@ void projectMenu(Project& project) {
 				"5 - remove employee\n" <<
 				"6 - change payment for employee\n" <<
 				"7 - remove task\n" << 
-				"F1 - help\n" <<
-				"ESC - return to main menu\n";
+				"8 - help\n" <<
+				"9 - return to main menu\n";
 			break;
 		}
-		case ESC: {
-			std::cout << "Press escape one more time: ";
-			if (_getch() == ESC) {
-				return;
-			}
-			else {
-				std::cout << '\n';
-			}
-			break;
+		case NINE_BUTTON: {
+			return;
 		}
 		default: {
 			break;
@@ -324,10 +301,7 @@ void taskMenu(Project& project, Task& task) {
 	char input;
 	do {
 		std::cout << "Your command?";
-		input = _getch();
-		if (input == 0 || input == -32) {
-			input = _getch();
-		}
+		std::cin >> input;
 		std::cout << '\n';
 		switch (input) {
 		case ONE_BUTTON: {
@@ -367,25 +341,18 @@ void taskMenu(Project& project, Task& task) {
 			std::cout << "This task use " << task.resources << " of resources";
 			break;
 		}
-		case F1: {
+		case EIGHT_BUTTON: {
 			std::cout << "It is task menu\n" <<
 				"1 - change name\n" << 
 				"2 - change resources\n" <<
 				"3 - add employee to task\n" <<
 				"4 - show resources\n" << 
-				"F1 - help\n" <<
-				"ESC - return to main menu\n";
+				"8 - help\n" <<
+				"9 - return to main menu\n";
 			break;
 		}
-		case ESC: {
-			std::cout << "Press escape one more time: ";
-			if (_getch() == ESC) {
-				return;
-			}
-			else {
-				std::cout << '\n';
-			}
-			break;
+		case NINE_BUTTON: {
+			return;
 		}
 		default: {
 			break;
